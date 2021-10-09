@@ -9,7 +9,7 @@ import os
 
 async def reply(ctx, text:str):
 	embed = discord.Embed(
-		title = "Help",
+		title = "VibeBerry",
 		color = 0x05cfde,
 		description = "VibeBerry is a music bot."
 	)
@@ -23,7 +23,7 @@ async def reply(ctx, text:str):
 	)
 
 	embed.add_field(
-		name = 'Alert!',
+		name = 'Music Player',
 		value = text
 	)
 
@@ -72,16 +72,22 @@ async def play(ctx, command_input:str):
 	else:
 		voiceState = ctx.guild.me.voice
 		if voiceState == None:
-			continue_function = await connect(ctx)
-			if continue_function == 'no continue':
-				return
+			await reply(ctx, 'Not connected to any voice/stage channel.')
+			return
 		
 		if command_input.replace(" ", "") == "":
 			await reply(ctx, 'Please provide a valid input like video name or url on YouTube.')
 		else:
 			video = video_search(str(command_input))
 			
-			await reply(ctx, f'Downloading and playing `{video["title"]}`. This may take a few seconds or minutes. Be patient.')
+			duration = video['duration'].split(':')
+			if len(duration) > 2:
+				await reply(ctx, f'Song too long. `17(min):59(sec)` is the limit.')
+			else:
+				if int(duration[0]) > 17:
+					await reply(ctx, f'Song too long. `17(min):59(sec)` is the limit.')
+				else:
+					await reply(ctx, f'Downloading and playing `{video["title"]}`. This may take a few seconds or minutes. Be patient.')
 			
 			for file in os.listdir('.'):
 				if file.endswith('.mp4'):
@@ -101,13 +107,10 @@ async def play(ctx, command_input:str):
 					if file.endswith('.mp4'):
 						os.rename(file, f'{title}.mp4')
 			
-			try:
-				voiceClient = ctx.guild.voice_client
-				if voiceClient.isPlaying():
-					await voiceClient.stop()
-				await voiceClient.play(discord.FFmpegPCMAudio(f"{title}.mp4"))
-			except Exception as e:
-				print(e)
+			voiceClient = ctx.guild.voice_client
+			if voiceClient.is_playing():
+				await voiceClient.stop()
+			await voiceClient.play(discord.FFmpegPCMAudio(f"{title}.mp4"))
 
 async def pause(ctx):
 	dm_connection = ctx.channel.type == discord.ChannelType.private

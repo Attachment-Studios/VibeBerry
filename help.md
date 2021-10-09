@@ -1,3 +1,11 @@
+*Help Meny for VibeBerry*
+
+> Prefixes
+
+`vibe`, `vb`, `vibeberry`, `music`
+
+> Commands
+
 **help**
 syntax: `vibe help`
 usage: Shows the help menu.
@@ -25,3 +33,8 @@ usage: Resumes the paused music.
 **stop**
 syntax: `vibe stop`
 usage: Stops the playing music.
+
+> Found A Bug?
+
+Found a bug? DM to `Attachment Aditya#4162` to report it.
+

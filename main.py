@@ -10,6 +10,8 @@ bot = discord.Client()
 
 @bot.event
 async def on_ready():
+	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Music!"))
+	await bot.change_presence(status=discord.Status.online)
 	print(f'{bot.user.name} has started.')
 
 @bot.event
@@ -22,6 +24,8 @@ async def on_message(ctx):
 		"vibeberry",
 		"vb"
 	]
+
+	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Music!"))
 
 	if len(msg) < 2:
 		return
@@ -39,7 +43,7 @@ async def on_message(ctx):
 
 		if cmd == "help":
 			embed = discord.Embed(
-				title = "Help",
+				title = "VibeBerry",
 				color = 0x05cfde,
 				description = "VibeBerry is a music bot."
 			)
@@ -60,20 +64,10 @@ async def on_message(ctx):
 			bf = open('bug.md', 'r')
 			bd = bf.read()
 			bf.close()
-
+			
 			embed.add_field(
-				name = "Prefixes",
-				value = "`vibe`, `vb`, `vibeberry`, `music`",
-				inline = False
-			)
-			embed.add_field(
-				name = "Commands",
+				name = "Help",
 				value = str(hd),
-				inline = False
-			)
-			embed.add_field(
-				name = "Report Bugs",
-				value = str(bd),
 				inline = False
 			)
 

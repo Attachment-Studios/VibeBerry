@@ -12,7 +12,10 @@ log.setLevel(logging.ERROR)
 
 @app.route('/')
 def home():
-	html = 'VibeBerry Under Berry Services'
+	f = open('index.html', 'r')
+	d = f.read()
+	f.close()
+	html = str(d)
 	return html
 
 def run():
