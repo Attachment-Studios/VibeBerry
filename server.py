@@ -19,7 +19,10 @@ def home():
 	return html
 
 def run():
-	app.run(host='0.0.0.0',port=2021)
+	try:
+		app.run(host='0.0.0.0',port=2021)
+	except Exception as e:
+		print(e)
 
 def status():
 	t = Thread(target=run)

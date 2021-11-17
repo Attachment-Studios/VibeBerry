@@ -1,4 +1,4 @@
-*Help Meny for VibeBerry*
+*Help Menu for VibeBerry*
 
 > Prefixes
 
@@ -29,6 +29,10 @@ usage: Pauses the playing music.
 **resume**
 syntax: `vibe resume`
 usage: Resumes the paused music.
+
+**skip**
+syntax: `vibe skip`
+usage: Skips the playing music.
 
 **stop**
 syntax: `vibe stop`
