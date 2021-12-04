@@ -78,5 +78,5 @@ try:
 	server.super_run()
 	bot.run(token)
 except Exception as e:
-	print(e)
+	print(f"{e}")
 
