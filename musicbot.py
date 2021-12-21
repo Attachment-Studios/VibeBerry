@@ -39,8 +39,9 @@ async def download_video(ctx, video:dict):
 		yt_video = pytube.YouTube(video['link'])
 		video_streams = yt_video.streams.filter(progressive=True).order_by("resolution")
 		video_streams[-1].download()
-	except Exception as err:
-		print(err)
+		return None
+	except:
+		return "FAIL"
 
 async def connect(ctx):
 	dm_connection = ctx.channel.type == discord.ChannelType.private
@@ -150,7 +151,20 @@ async def play(ctx, command_input:str, repeat:bool):
 			
 			m = await reply(ctx, f'Downloading `{video["title"]}`. This may take a few seconds or minutes. Be patient.')
 			
-			await download_video(ctx, video)
+			d____ = await download_video(ctx, video)
+			if d____ == None:
+				pass
+			else:
+				try:
+					if len(q[gid]) > 0:
+						del q[gid][0]
+				except:
+					pass
+				try:
+					await m.delete()
+				except:
+					pass
+				await reply(ctx, f'Failed to download `{video["title"]}`.')
 
 			await asyncio.sleep(2)
 			

@@ -2,16 +2,13 @@
 name = "repl_python3_VibeBerry"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["AttAditya <<>>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 discord = "^1.7.3"
-pytube = "^11.0.1"
-youtube-search-python = "^1.4.9"
-PyNaCl = "^1.4.0"
 Flask = "^2.0.2"
-moviepy = "^1.0.3"
+pytube = "^11.0.2"
 
 [tool.poetry.dev-dependencies]
 
