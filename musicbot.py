@@ -11,7 +11,7 @@ import random
 q = {}
 pl = [[]]
 
-async def reply(ctx, text:str):
+async def reply(ctx, text:str, *image:bool):
 	embed = discord.Embed(
 		title = "VibeBerry",
 		color = 0x05cfde,
@@ -21,16 +21,16 @@ async def reply(ctx, text:str):
 		url='https://images-ext-2.discordapp.net/external/B3fan6_20nbG7ZQRdpRYKxTJcOQrASTBj75hN97IgUE/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/895121185065562184/9e3b25a9f265d9c4de656df3aeffd5d5.webp'
 	)
 
-	embed.set_footer(
-		text = "Services under Berry Foundations - Attachment Studios",
-		icon_url = "https://images-ext-1.discordapp.net/external/x_dF_ppBthHmRPQi75iuRXLMfK0wuAW2sBLTdtNlXAc/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/894098855220617216/d9b9a3b48a054b9847401bb9178ed438.webp"
-	)
-
 	embed.add_field(
 		name = 'Music Player',
 		value = text
 	)
 
+	if image:
+		embed.set_image(
+			url = f"https://github.com/Attachment-Studios/VibeBerry/blob/master/player/{[1, 2, 3, 4][random.randint(0, 3)]}.gif?raw=true"
+		)
+	
 	m = await ctx.channel.send(embed=embed)
 	return m
 
@@ -194,9 +194,9 @@ async def play(ctx, command_input:str, repeat:bool):
 
 			__v = f"[`{video['title']}`]({video['link']})"
 			if repeat:
-				m = await reply(ctx, f'Now Looping {__v}.')
+				m = await reply(ctx, f'Now Looping {__v}.', True)
 			else:
-				m = await reply(ctx, f'Now Playing {__v}.')
+				m = await reply(ctx, f'Now Playing {__v}.', True)
 			
 			while loop:
 				try:
@@ -252,6 +252,9 @@ async def play(ctx, command_input:str, repeat:bool):
 							embed.add_field(
 								name = 'Music Player',
 								value = f'Now Playing {__v}\n\n{"".join(progress_bar)}'
+							)
+							embed.set_image(
+								url = f"https://github.com/Attachment-Studios/VibeBerry/blob/master/player/{[1, 2, 3, 4][random.randint(0, 3)]}.gif?raw=true"
 							)
 							if loop == False:
 								await m.edit(embed=embed)
