@@ -198,6 +198,7 @@ async def play(ctx, command_input:str, repeat:bool):
 			else:
 				m = await reply(ctx, f'Now Playing {__v}.', True)
 			
+			player_img = f"https://github.com/Attachment-Studios/VibeBerry/blob/master/player/{[1, 2, 3, 4][random.randint(0, 3)]}.gif?raw=true"
 			while loop:
 				try:
 					if repeat:
@@ -254,7 +255,7 @@ async def play(ctx, command_input:str, repeat:bool):
 								value = f'Now Playing {__v}\n\n{"".join(progress_bar)}'
 							)
 							embed.set_image(
-								url = f"https://github.com/Attachment-Studios/VibeBerry/blob/master/player/{[1, 2, 3, 4][random.randint(0, 3)]}.gif?raw=true"
+								url = player_img
 							)
 							if loop == False:
 								await m.edit(embed=embed)
