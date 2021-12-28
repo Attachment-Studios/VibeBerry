@@ -31,6 +31,11 @@ async def reply(ctx, text:str, *image:bool):
 			url = f"https://github.com/Attachment-Studios/VibeBerry/blob/master/player/{[1, 2, 3, 4][random.randint(0, 3)]}.gif?raw=true"
 		)
 	
+	embed.set_footer(
+		text = "Services under Berry Foundations - Attachment Studios",
+		icon_url = "https://images-ext-1.discordapp.net/external/x_dF_ppBthHmRPQi75iuRXLMfK0wuAW2sBLTdtNlXAc/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/894098855220617216/d9b9a3b48a054b9847401bb9178ed438.webp"
+	)
+	
 	m = await ctx.channel.send(embed=embed)
 	return m
 
@@ -460,6 +465,24 @@ async def volume(ctx, command_input:str):
 		else:
 			await reply(ctx, 'Not playing anything.')
 
+async def galaxy(ctx, command_input:str):
+	if command_input.strip(' ') == "":
+		if os.path.isfile(f'playlists/{ctx.author.id}.csv'):
+			pass
+		else:
+			m = await reply(ctx, f'[`{ctx.author.name}\'s Galaxy`](https://discord.com/users/{ctx.author.id}) is empty.')
+			try:
+				await ctx.delete()
+			except:
+				pass
+			await asyncio.sleep(15)
+			try:
+				await m.delete()
+			except:
+				pass
+	else:
+		pass
+
 async def trigger(ctx, command:str, command_input:str):
 	if command == "connect":
 		await connect(ctx)
@@ -469,6 +492,8 @@ async def trigger(ctx, command:str, command_input:str):
 		await play(ctx, command_input, False)
 	elif command == "loop":
 		await play(ctx, command_input, True)
+	elif command == "galaxy":
+		await galaxy(ctx, command_input)
 	elif command == "skip":
 		await skip(ctx)
 	elif command == "pause":
