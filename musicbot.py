@@ -149,8 +149,20 @@ async def play(ctx, command_input:str, repeat:bool):
 			np = q[gid][0]
 			while not(np == vbid):
 				await asyncio.sleep(1)
+				if len(q[gid]) == 0:
+					try:
+						await m.delete()
+					except:
+						pass
+					return
 				while voiceClient.is_playing():
 					await asyncio.sleep(1)
+				if len(q[gid]) == 0:
+					try:
+						await m.delete()
+					except:
+						pass
+					return
 				np = q[gid][0]
 			await m.delete()
 			
@@ -202,6 +214,11 @@ async def play(ctx, command_input:str, repeat:bool):
 				m = await reply(ctx, f'Now Looping {__v}.', True)
 			else:
 				m = await reply(ctx, f'Now Playing {__v}.', True)
+			
+			await m.add_reaction('⏸️')
+			await m.add_reaction('⏭️')
+			await m.add_reaction('⏹️')
+			await m.add_reaction('🔁')
 			
 			player_img = f"https://github.com/Attachment-Studios/VibeBerry/blob/master/player/{[1, 2, 3, 4][random.randint(0, 3)]}.gif?raw=true"
 			while loop:
@@ -502,4 +519,48 @@ async def trigger(ctx, command:str, command_input:str):
 		await resume(ctx)
 	elif command == "stop":
 		await stop(ctx)
+
+async def add_reaction_trigger(payload, client):
+	user = payload.member
+	if user == None:
+		user = await client.fetch_user(payload.user_id)
+	emoji = payload.emoji.name
+	channel = await client.fetch_channel(payload.channel_id)
+
+	if user.bot:
+		return
+	
+	pause = '⏸️'
+	skip = '⏭️'
+	stop = '⏹️'
+	loop = '🔁'
+	
+	if emoji == pause:
+		await channel.send('vibe pause')
+	if emoji == skip:
+		await channel.send('vibe skip')
+	if emoji == stop:
+		await channel.send('vibe stop')
+	if emoji == loop:
+		message = await channel.fetch_message(payload.message_id)
+		embed = message.embeds[0]
+		for field in embed.fields:
+			if field.name == "Music Player":
+				url = field.value.split('](')[-1].split(')')[0].split('?t=')[0]
+				await channel.send(f'vibe loop {url}')
+
+async def remove_reaction_trigger(payload, client):
+	user = payload.member
+	if user == None:
+		user = await client.fetch_user(payload.user_id)
+	emoji = payload.emoji.name
+	channel = await client.fetch_channel(payload.channel_id)
+
+	if user.bot:
+		return
+	
+	pause = '⏸️'
+	
+	if emoji == pause:
+		await channel.send('vibe resume')
 

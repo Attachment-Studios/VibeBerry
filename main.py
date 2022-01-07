@@ -73,6 +73,14 @@ async def on_message(ctx):
 
 			await ctx.channel.send(embed = embed)
 
+@bot.event
+async def on_raw_reaction_add(payload):
+	await musicbot.add_reaction_trigger(payload, bot)
+
+@bot.event
+async def on_raw_reaction_remove(payload):
+	await musicbot.remove_reaction_trigger(payload, bot)
+
 token = os.getenv('TOKEN')
 try:
 	server.super_run()
