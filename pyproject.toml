@@ -11,6 +11,8 @@ Flask = "^2.0.2"
 pytube = "^11.0.2"
 youtube-search-python = "^1.5.3"
 PyNaCl = "^1.4.0"
+ffmpeg = "^1.4"
+mutagen = "^1.45.1"
 
 [tool.poetry.dev-dependencies]
 

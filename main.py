@@ -25,8 +25,6 @@ async def on_message(ctx):
 		"vb"
 	]
 
-	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Music!"))
-
 	if len(msg) < 2:
 		return
 
@@ -61,10 +59,6 @@ async def on_message(ctx):
 			hd = hf.read()
 			hf.close()
 			
-			bf = open('bug.md', 'r')
-			bd = bf.read()
-			bf.close()
-			
 			embed.add_field(
 				name = "Help",
 				value = str(hd),
@@ -72,6 +66,44 @@ async def on_message(ctx):
 			)
 
 			await ctx.channel.send(embed = embed)
+
+			try:
+				await ctx.delete()
+			except:
+				pass
+		
+		if cmd == "commands":
+			embed = discord.Embed(
+				title = "VibeBerry",
+				color = 0x05cfde,
+				description = "VibeBerry is a music bot."
+			)
+			
+			embed.set_thumbnail(
+				url='https://images-ext-2.discordapp.net/external/B3fan6_20nbG7ZQRdpRYKxTJcOQrASTBj75hN97IgUE/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/895121185065562184/9e3b25a9f265d9c4de656df3aeffd5d5.webp'
+			)
+			
+			embed.set_footer(
+				text = "Services under Berry Foundations - Attachment Studios",
+				icon_url = "https://images-ext-1.discordapp.net/external/x_dF_ppBthHmRPQi75iuRXLMfK0wuAW2sBLTdtNlXAc/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/894098855220617216/d9b9a3b48a054b9847401bb9178ed438.webp"
+			)
+
+			hf = open('cmd.md', 'r')
+			hd = hf.read()
+			hf.close()
+			
+			embed.add_field(
+				name = "Commands",
+				value = str(hd),
+				inline = False
+			)
+
+			await ctx.channel.send(embed = embed)
+
+			try:
+				await ctx.delete()
+			except:
+				pass
 
 @bot.event
 async def on_raw_reaction_add(payload):

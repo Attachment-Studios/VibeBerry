@@ -36,7 +36,10 @@ async def reply(ctx, text:str, *image:bool):
 		icon_url = "https://images-ext-1.discordapp.net/external/x_dF_ppBthHmRPQi75iuRXLMfK0wuAW2sBLTdtNlXAc/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/894098855220617216/d9b9a3b48a054b9847401bb9178ed438.webp"
 	)
 	
-	m = await ctx.channel.send(embed=embed)
+	try:
+		m = await ctx.channel.send(embed=embed)
+	except:
+		m = await ctx.send(embed=embed)
 	return m
 
 async def download_video(ctx, video:dict):
@@ -64,7 +67,8 @@ async def connect(ctx):
 			await reply(ctx, f'Connected to <#{channel.id}>.')
 
 			try:
-				await ctx.delete()
+				if len(ctx.attachments) == 0:
+					await ctx.delete()
 			except:
 				pass
 
@@ -89,7 +93,7 @@ async def disconnect(ctx):
 			except:
 				pass
 
-async def play(ctx, command_input:str, repeat:bool):
+async def play(ctx, command_input:str, repeat:bool, local_play:bool):
 	dm_connection = ctx.channel.type == discord.ChannelType.private
 
 	if dm_connection:
@@ -99,8 +103,144 @@ async def play(ctx, command_input:str, repeat:bool):
 		if voiceState == None:
 			await connect(ctx)
 		
-		if command_input.replace(" ", "") == "":
-			await reply(ctx, 'Please provide a valid input like video name or url on YouTube.')
+		if command_input.replace(" ", "") == "" or local_play:
+			filename = ""
+			rfn = ""
+			if local_play:
+				for attachment in ctx.attachments:
+					if attachment.filename.lower().endswith('.mp3'):
+						rfn = attachment.filename
+						filename = f"local_music__{len(os.listdir('.'))}.mp3"
+						await attachment.save(f"{filename}")
+						break
+					elif attachment.filename.lower().endswith('.mp4'):
+						filename = f"local_music__{len(os.listdir('.'))}.mp4"
+						await attachment.save(f"{filename}")
+						break
+				
+				if filename == "":
+					await ctx.delete()
+					m = await reply(ctx, 'Please provide a valid input like `mp3` and `mp4` files to play them.')
+					await asyncio.sleep(15)
+					await m.delete()
+					return
+				
+				await ctx.delete()
+				voiceClient = None
+				while voiceClient == None:
+					voiceClient = ctx.guild.voice_client
+
+				while voiceClient == None:
+					await asyncio.sleep(1)
+				
+				gid = ctx.guild.id
+				if gid in q:
+					pass
+				else:
+					q.update(
+						{
+							gid : []
+						}
+					)
+				
+				vbid = len(q[gid])
+
+				if vbid > 0:
+					vbid = q[gid][-1] + 1
+				
+				q[gid].append(vbid)
+
+				m = await reply(ctx, f'Added `{rfn}` to queue. A song already playing.')
+
+				np = q[gid][0]
+				while not(np == vbid):
+					await asyncio.sleep(1)
+					if len(q[gid]) == 0:
+						try:
+							await m.delete()
+						except:
+							pass
+						return
+					while voiceClient.is_playing():
+						await asyncio.sleep(1)
+					if len(q[gid]) == 0:
+						try:
+							await m.delete()
+						except:
+							pass
+						return
+					np = q[gid][0]
+				await m.delete()
+
+				song = discord.FFmpegPCMAudio(f"{filename}")
+				broken = False
+				if repeat == False:
+					voiceClient.play(song)
+					m = await reply(ctx, f'Now Playing `{rfn}`.', True)
+					await m.add_reaction('⏸️')
+					await m.add_reaction('⏭️')
+					await m.add_reaction('⏹️')
+					playing = True
+					while playing:
+						if q[gid][0] == vbid:
+							pass
+						else:
+							if gid in pl[0]:
+								pass
+							else:
+								broken = True
+								break
+						await asyncio.sleep(1)
+				else:
+					if False:
+						dur = 1
+						m = await reply(ctx, f'Now Looping {rfn}.', True)
+						looping = True
+						tick = 0
+						while looping:
+							if tick > dur:
+								voiceClient.stop()
+							if voiceClient.is_playing():
+								if q[gid][0] == vbid:
+									pass
+								else:
+									looping = False
+									broken = True
+									break
+								await asyncio.sleep(1)
+								tick += 1
+							else:
+								voiceClient.play(song)
+					else:
+						e = await reply(ctx, f'Looping local file is not an option yet.', True)
+						await asyncio.sleep(15)
+						try:
+							await e.delete()
+						except:
+							pass
+				
+				try:
+					if len(q[gid]) > 0:
+						if broken:
+							voiceClient.stop()
+						else:
+							del q[gid][0]
+				except:
+					pass
+				try:
+					await m.delete()
+				except:
+					pass
+				try:
+					os.remove(filename)
+				except:
+					pass
+			else:
+				await ctx.delete()
+				m = await reply(ctx, 'Please provide a valid input like video name or url on YouTube. You can also drop `mp3` and `mp4` files to play them.')
+				await asyncio.sleep(15)
+				await m.delete()
+				return
 		else:
 			video = video_search(str(command_input))
 			
@@ -182,6 +322,7 @@ async def play(ctx, command_input:str, repeat:bool):
 				except:
 					pass
 				await reply(ctx, f'Failed to download `{video["title"]}`.')
+				return
 
 			await asyncio.sleep(2)
 			
@@ -506,11 +647,27 @@ async def trigger(ctx, command:str, command_input:str):
 	elif command == "disconnect":
 		await disconnect(ctx)
 	elif command == "play":
-		await play(ctx, command_input, False)
+		local_play = False
+		if len(ctx.attachments) == 0:
+			pass
+		else:
+			for attachment in ctx.attachments:
+				if attachment.filename.lower().endswith('.mp3') or attachment.filename.lower().endswith('.mp4'):
+					local_play = True
+					break
+		await play(ctx, command_input, False, local_play)
+	elif command == "local-play":
+		await play(ctx, command_input, False, True)
 	elif command == "loop":
-		await play(ctx, command_input, True)
-	elif command == "galaxy":
-		await galaxy(ctx, command_input)
+		local_play = False
+		if len(ctx.attachments) == 0:
+			pass
+		else:
+			for attachment in ctx.attachments:
+				if attachment.filename.lower().endswith('.mp3') or attachment.filename.lower().endswith('.mp4'):
+					local_play = True
+					break
+		await play(ctx, command_input, True, local_play)
 	elif command == "skip":
 		await skip(ctx)
 	elif command == "pause":
@@ -547,7 +704,15 @@ async def add_reaction_trigger(payload, client):
 		for field in embed.fields:
 			if field.name == "Music Player":
 				url = field.value.split('](')[-1].split(')')[0].split('?t=')[0]
-				await channel.send(f'vibe loop {url}')
+				if url.lower() == 'https://vibeberry.attaditya.repl.co':
+					e = await reply(channel, f'Looping local file is not an option yet.', True)
+					await asyncio.sleep(15)
+					try:
+						await e.delete()
+					except:
+						pass
+				else:
+					await channel.send(f'vibe loop {url}')
 
 async def remove_reaction_trigger(payload, client):
 	user = payload.member
