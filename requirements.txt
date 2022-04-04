@@ -1,5 +1,5 @@
 discord.py
-youtubesearchpython
+youtube-search-python
 pytube
 youtube_dl
 yt_dlp
