@@ -1,0 +1,8 @@
+discord.py
+youtubesearchpython
+pytube
+youtube_dl
+yt_dlp
+pynacl
+ytmdl
+flask
