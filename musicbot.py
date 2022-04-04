@@ -2,11 +2,14 @@
 
 import youtubesearchpython
 import pytube
+import youtube_dl
+import yt_dlp
 import discord
 import nacl
 import os
 import asyncio
 import random
+import ytmdl
 
 q = {}
 pl = [[]]
@@ -45,7 +48,13 @@ async def download_video(ctx, video:dict):
 		video_streams = yt_video.streams.filter(progressive=True).order_by("resolution")
 		video_streams[-1].download()
 		return None
-	except:
+	except Exception as error:
+		print(error)
+		try:
+			os.system(f'yt-dlp {video["link"]} -x --audio-format mp3')
+			return None
+		except Exception as second_error:
+			print(second_error)
 		return "FAIL"
 
 async def connect(ctx):
@@ -191,15 +200,46 @@ async def play(ctx, command_input:str, repeat:bool):
 					title += str(ch)
 				else:
 					title += str(' ')
-			
+
+			mode = 'mp4'
+			count = 30
 			while not(os.path.isfile(f'{title}.mp4')):
+				done = False
 				await asyncio.sleep(2)
+				count -= 1
+				if count <= 0:
+					try:
+						await m.delete()
+					except:
+						pass
+					await reply(ctx, f'Failed to download `{video["title"]}`.')
+					return
 				for file in os.listdir('.'):
 					if file.endswith('.mp4'):
 						os.rename(file, f'{title}.mp4')
+						mode = '.mp4'
+						done = True
+						break
+					if file.endswith('.webm'):
+						os.rename(file, f'{title}.webm')
+						mode = '.webm'
+						done = True
+						break
+					if file.endswith('.mkv'):
+						os.rename(file, f'{title}.mkv')
+						mode = '.mkv'
+						done = True
+						break
+					if file.endswith('.mp3'):
+						os.rename(file, f'{title}.mp3')
+						mode = '.mp3'
+						done = True
+						break
+				if done:
+					break
 			
 			if repeat == False:
-				song = discord.FFmpegPCMAudio(f"{title}.mp4")
+				song = discord.FFmpegPCMAudio(f"{title}{mode}")
 				voiceClient.play(song)
 			
 			try:
@@ -219,6 +259,7 @@ async def play(ctx, command_input:str, repeat:bool):
 			await m.add_reaction('⏭️')
 			await m.add_reaction('⏹️')
 			await m.add_reaction('🔁')
+			await m.add_reaction('🌌')
 			
 			player_img = f"https://github.com/Attachment-Studios/VibeBerry/blob/master/player/{[1, 2, 3, 4][random.randint(0, 3)]}.gif?raw=true"
 			while loop:
@@ -296,7 +337,7 @@ async def play(ctx, command_input:str, repeat:bool):
 			except:
 				pass
 			try:
-				os.remove(f'{title}.mp4')
+				os.remove(f'{title}{mode}')
 			except:
 				pass
 			try:
@@ -431,9 +472,9 @@ def video_search(query:str):
 async def skip(ctx):
 	gid = ctx.guild.id
 	if len(q[gid]) > 0:
-		del q[gid][0]
 		voiceClient = ctx.guild.voice_client
 		if voiceClient.is_playing():
+			del q[gid][0]
 			voiceClient.pause()
 			m = await reply(ctx, "Skipped.")
 
@@ -487,7 +528,7 @@ async def galaxy(ctx, command_input:str):
 		if os.path.isfile(f'playlists/{ctx.author.id}.csv'):
 			pass
 		else:
-			m = await reply(ctx, f'[`{ctx.author.name}\'s Galaxy`](https://discord.com/users/{ctx.author.id}) is empty.')
+			m = await reply(ctx, f'[`{ctx.author.name}\'s`](https://discord.com/users/{ctx.author.id}) Galaxy is empty.')
 			try:
 				await ctx.delete()
 			except:
@@ -534,6 +575,7 @@ async def add_reaction_trigger(payload, client):
 	skip = '⏭️'
 	stop = '⏹️'
 	loop = '🔁'
+	galaxy = '🌌'
 	
 	if emoji == pause:
 		await channel.send('vibe pause')
@@ -548,6 +590,13 @@ async def add_reaction_trigger(payload, client):
 			if field.name == "Music Player":
 				url = field.value.split('](')[-1].split(')')[0].split('?t=')[0]
 				await channel.send(f'vibe loop {url}')
+	if emoji == galaxy:
+		message = await channel.fetch_message(payload.message_id)
+		embed = message.embeds[0]
+		for field in embed.fields:
+			if field.name == "Music Player":
+				url = field.value.split('](')[-1].split(')')[0].split('?t=')[0]
+				await channel.send(f'Adding Currently Playing Song To Your Galaxy')
 
 async def remove_reaction_trigger(payload, client):
 	user = payload.member
